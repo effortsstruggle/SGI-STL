@@ -1,0 +1,38 @@
+---- _S_oom_malloc Matches (6 in 2 files) ----
+stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) line 115 : 
+
+  static void* _S_oom_malloc(size_t);
+  static void* _S_oom_realloc(void*, size_t);
+
+#ifndef __STL_STATIC_TEMPLATE_MEMBER_BUG
+stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) line 128 : 
+    if (0 == __result) 
+		__result = _S_oom_malloc(__n);
+    return __result;
+}
+
+__malloc_alloc_template::_S_oom_malloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+template <int __inst>
+void* __malloc_alloc_template<__inst>::_S_oom_malloc(size_t __n)
+{
+    void (* __my_malloc_handler)();
+    void* __result;
+stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) line 118 : 
+  // 以下函数将用来处理内存不足的情况
+  static void* _S_oom_malloc(size_t);
+  static void* _S_oom_realloc(void*, size_t);
+
+#ifndef __STL_STATIC_TEMPLATE_MEMBER_BUG
+stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) line 131 : 
+    void* __result = malloc(__n);
+    // 以下无法满足需求时，改用 _S_oom_malloc()
+    if (0 == __result) __result = _S_oom_malloc(__n);
+    return __result;
+  }
+
+__malloc_alloc_template::_S_oom_malloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+void*
+__malloc_alloc_template<__inst>::_S_oom_malloc(size_t __n)
+{
+    void (* __my_malloc_handler)();
+    void* __result;
