@@ -1,4 +1,5 @@
 /*
+ * 空间配置器
  * Copyright (c) 1996-1997
  * Silicon Graphics Computer Systems, Inc.
  *
@@ -326,8 +327,7 @@ private:
     enum {_NFREELISTS = 16}; // _MAX_BYTES/_ALIGN  free-list 的个数
 # endif 
   // 将任何小额区块的内存需求量上调至 8 的倍数
-  static size_t
-  _S_round_up(size_t __bytes) 
+  static size_t _S_round_up(size_t __bytes) 
     { return (((__bytes) + (size_t) _ALIGN-1) & ~((size_t) _ALIGN - 1)); }
 
 __PRIVATE:
@@ -336,6 +336,7 @@ __PRIVATE:
         union _Obj* _M_free_list_link;  // 利用联合体特点
         char _M_client_data[1];    /* The client sees this.        */
   };
+  
 private:
 # if defined(__SUNPRO_CC) || defined(__GNUC__) || defined(__HP_aCC)
     static _Obj* __STL_VOLATILE _S_free_list[]; 
@@ -383,25 +384,29 @@ public:
     void* __ret = 0;
 
     // 如果需求区块大于 128 bytes，就转调用第一级配置
-    if (__n > (size_t) _MAX_BYTES) {
+    if (__n > (size_t) _MAX_BYTES) 
+	{
       __ret = malloc_alloc::allocate(__n);
     }
-    else {
+    else 
+	{
       // 根据申请空间的大小寻找相应的空闲链表（16个空闲链表中的一个）
-      _Obj* __STL_VOLATILE* __my_free_list
-          = _S_free_list + _S_freelist_index(__n);
+      _Obj* __STL_VOLATILE* __my_free_list = _S_free_list + _S_freelist_index(__n);
       // Acquire the lock here with a constructor call.
       // This ensures that it is released in exit or during stack
       // unwinding.
-#     ifndef _NOTHREADS
-      /*REFERENCED*/
-      _Lock __lock_instance;
-#     endif
+	#ifndef _NOTHREADS
+      	/*REFERENCED*/
+      	_Lock __lock_instance;
+	#endif
+	
       _Obj* __RESTRICT __result = *__my_free_list;
-      // 空闲链表没有可用数据块，就将区块大小先调整至 8 倍数边界，然后调用 _S_refill() 重新填充
+
+      // 空闲链表没有空闲数据块，就将区块大小先调整至 8 倍数边界，然后调用 _S_refill() 重新填充
       if (__result == 0)
-        __ret = _S_refill(_S_round_up(__n));
-      else {
+        __ret = _S_refill( _S_round_up(__n) );
+      else 
+	  {
         // 如果空闲链表中有空闲数据块，则取出一个，并把空闲链表的指针指向下一个数据块  
         *__my_free_list = __result -> _M_free_list_link;
         __ret = __result;
@@ -418,15 +423,15 @@ public:
     if (__n > (size_t) _MAX_BYTES)   
       malloc_alloc::deallocate(__p, __n);   // 大于 128 bytes，就调用第一级配置器的释放
     else {
-      _Obj* __STL_VOLATILE*  __my_free_list
-          = _S_free_list + _S_freelist_index(__n);   // 否则将空间回收到相应空闲链表（由释放块的大小决定）中  
+      _Obj* __STL_VOLATILE*  __my_free_list = _S_free_list + _S_freelist_index(__n);   // 否则将空间回收到相应空闲链表（由释放块的大小决定）中  
       _Obj* __q = (_Obj*)__p;
 
-      // acquire lock
-#       ifndef _NOTHREADS
+    // acquire lock
+	#ifndef _NOTHREADS
       /*REFERENCED*/
       _Lock __lock_instance;
-#       endif /* _NOTHREADS */
+	#endif /* _NOTHREADS */
+	
       __q -> _M_free_list_link = *__my_free_list;   // 调整空闲链表，回收数据块
       *__my_free_list = __q;
       // lock is released here
@@ -464,18 +469,19 @@ inline bool operator!=(const __default_alloc_template<__threads, __inst>&,
 /* We hold the allocation lock.                                         */
 // 从内存池中取空间
 template <bool __threads, int __inst>
-char*
-__default_alloc_template<__threads, __inst>::_S_chunk_alloc(size_t __size, 
-                                                            int& __nobjs)
+ char* __default_alloc_template<__threads, __inst>::_S_chunk_alloc(size_t __size , int& __nobjs)
 {
     char* __result;
     size_t __total_bytes = __size * __nobjs;  // 需要申请空间的大小 
-    size_t __bytes_left = _S_end_free - _S_start_free;  // 计算内存池剩余空间
+
+	size_t __bytes_left = _S_end_free - _S_start_free;  // 计算内存池剩余空间
 
     if (__bytes_left >= __total_bytes) {  // 内存池剩余空间完全满足申请
+    
         __result = _S_start_free;
         _S_start_free += __total_bytes;
         return(__result);
+		
     } else if (__bytes_left >= __size) {  // 内存池剩余空间不能满足申请，提供一个以上的区块
         __nobjs = (int)(__bytes_left/__size);
         __total_bytes = __size * __nobjs;
@@ -533,12 +539,13 @@ __default_alloc_template<__threads, __inst>::_S_chunk_alloc(size_t __size,
 /* We assume that __n is properly aligned.                                */
 /* We hold the allocation lock.                                         */
 template <bool __threads, int __inst>
-void*
-__default_alloc_template<__threads, __inst>::_S_refill(size_t __n)
+void* __default_alloc_template<__threads, __inst>::_S_refill(size_t __n)
 {
     int __nobjs = 20;
     // 调用 _S_chunk_alloc()，缺省取 20 个区块作为 free list 的新节点
-    char* __chunk = _S_chunk_alloc(__n, __nobjs);
+    // __chunk 为20个区块的 “首地址”（第一个区块 是0~n 第二个区块 ：n ~ 2n ， 第三个区块：2n ~ 3n依次类推 ））
+    char* __chunk = _S_chunk_alloc(__n, __nobjs); 
+	
     _Obj* __STL_VOLATILE* __my_free_list;
     _Obj* __result;
     _Obj* __current_obj;
@@ -546,22 +553,36 @@ __default_alloc_template<__threads, __inst>::_S_refill(size_t __n)
     int __i;
 
     // 如果只获得一个数据块，那么这个数据块就直接分给调用者，空闲链表中不会增加新节点
-    if (1 == __nobjs) return(__chunk);
-    __my_free_list = _S_free_list + _S_freelist_index(__n);  // 否则根据申请数据块的大小找到相应空闲链表  
+    if (1 == __nobjs) 
+		return(__chunk);
+	
+      __my_free_list = _S_free_list + _S_freelist_index(__n);  // 否则根据申请数据块的大小找到相应空闲链表  
 
-    /* Build free list in chunk */
-      __result = (_Obj*)__chunk;
-      *__my_free_list = __next_obj = (_Obj*)(__chunk + __n);  // 第0个数据块给调用者，地址访问即chunk~chunk + n - 1  
-      for (__i = 1; ; __i++) {
+      /* Build free list in chunk */
+      __result = (_Obj*)__chunk; //这一块返回给客户端
+
+
+	  //以下引导free list 指向新的配置空间（取自内存池）
+      *__my_free_list = (_Obj*)(__chunk + __n);  // 第0个数据块给调用者，地址访问即chunk~chunk + n - 1 
+      __next_obj = (_Obj*)(__chunk + __n)
+	  for (__i = 1 ; ; __i++)  //从1开始，因为第0个返回给客端；
+	  {
         __current_obj = __next_obj;
-        __next_obj = (_Obj*)((char*)__next_obj + __n);
-        if (__nobjs - 1 == __i) {
-            __current_obj -> _M_free_list_link = 0;
+		
+        __next_obj = (_Obj*)( (char*)__next_obj + __n); //指向下一个区块
+		
+        if (__nobjs - 1 == __i) 
+		{
+            __current_obj -> _M_free_list_link = 0; //链表末尾
             break;
-        } else {
-            __current_obj -> _M_free_list_link = __next_obj;
-        }
+        } 
+		else 
+		{
+            __current_obj -> _M_free_list_link = __next_obj;  //当前_M_free_list_link指向下一个Obj ,构成一个链表
+      	}
+		
       }
+	  
     return(__result);
 }
 

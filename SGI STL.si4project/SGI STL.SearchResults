@@ -1,38 +1,73 @@
----- _S_oom_malloc Matches (6 in 2 files) ----
-stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) line 115 : 
-
-  static void* _S_oom_malloc(size_t);
-  static void* _S_oom_realloc(void*, size_t);
-
-#ifndef __STL_STATIC_TEMPLATE_MEMBER_BUG
-stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) line 128 : 
-    if (0 == __result) 
-		__result = _S_oom_malloc(__n);
-    return __result;
-}
-
-__malloc_alloc_template::_S_oom_malloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
-template <int __inst>
-void* __malloc_alloc_template<__inst>::_S_oom_malloc(size_t __n)
-{
-    void (* __my_malloc_handler)();
-    void* __result;
-stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) line 118 : 
-  // 以下函数将用来处理内存不足的情况
-  static void* _S_oom_malloc(size_t);
-  static void* _S_oom_realloc(void*, size_t);
-
-#ifndef __STL_STATIC_TEMPLATE_MEMBER_BUG
-stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) line 131 : 
-    void* __result = malloc(__n);
-    // 以下无法满足需求时，改用 _S_oom_malloc()
-    if (0 == __result) __result = _S_oom_malloc(__n);
-    return __result;
+---- _S_freelist_index Matches (12 in 2 files) ----
+stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) line 322 : 
+# endif
+  static  size_t _S_freelist_index(size_t __bytes) {
+        return (((__bytes) + (size_t)_ALIGN-1)/(size_t)_ALIGN - 1);
   }
 
-__malloc_alloc_template::_S_oom_malloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
-void*
-__malloc_alloc_template<__inst>::_S_oom_malloc(size_t __n)
-{
-    void (* __my_malloc_handler)();
-    void* __result;
+__default_alloc_template::allocate in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+      _Obj* __STL_VOLATILE* __my_free_list
+          = _S_free_list + _S_freelist_index(__n);
+      // Acquire the lock here with a constructor call.
+      // This ensures that it is released in exit or during stack
+      // unwinding.
+__default_alloc_template::deallocate in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+      _Obj* __STL_VOLATILE*  __my_free_list
+          = _S_free_list + _S_freelist_index(__n);
+      _Obj* __q = (_Obj*)__p;
+
+      // acquire lock
+__default_alloc_template::_S_chunk_alloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+            _Obj* __STL_VOLATILE* __my_free_list =
+                        _S_free_list + _S_freelist_index(__bytes_left);
+
+            ((_Obj*)_S_start_free) -> _M_free_list_link = *__my_free_list;
+            *__my_free_list = (_Obj*)_S_start_free;
+__default_alloc_template::_S_chunk_alloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+                 __i += (size_t) _ALIGN) {
+                __my_free_list = _S_free_list + _S_freelist_index(__i);
+                __p = *__my_free_list;
+                if (0 != __p) {
+                    *__my_free_list = __p -> _M_free_list_link;
+__default_alloc_template::_S_refill in stl_alloc.h (SGI-STL-master\SGI-STL-master\SGI-STL V3.3) : 
+    if (1 == __nobjs) return(__chunk);
+    __my_free_list = _S_free_list + _S_freelist_index(__n);
+
+    /* Build free list in chunk */
+      __result = (_Obj*)__chunk;
+__default_alloc_template in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+  //根据申请数据块大小找到相应空闲链表的下标，n 从 0 起算
+  static  size_t _S_freelist_index(size_t __bytes) {
+        return (((__bytes) + (size_t)_ALIGN-1)/(size_t)_ALIGN - 1);
+  }
+
+__default_alloc_template::allocate in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+      _Obj* __STL_VOLATILE* __my_free_list
+          = _S_free_list + _S_freelist_index(__n);
+      // Acquire the lock here with a constructor call.
+      // This ensures that it is released in exit or during stack
+      // unwinding.
+__default_alloc_template::deallocate in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+      _Obj* __STL_VOLATILE*  __my_free_list
+          = _S_free_list + _S_freelist_index(__n);   // 否则将空间回收到相应空闲链表（由释放块的大小决定）中  
+      _Obj* __q = (_Obj*)__p;
+
+      // acquire lock
+__default_alloc_template::_S_chunk_alloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+            _Obj* __STL_VOLATILE* __my_free_list =
+                        _S_free_list + _S_freelist_index(__bytes_left);
+
+            ((_Obj*)_S_start_free) -> _M_free_list_link = *__my_free_list;
+            *__my_free_list = (_Obj*)_S_start_free;
+__default_alloc_template::_S_chunk_alloc in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+                 __i += (size_t) _ALIGN) {
+                __my_free_list = _S_free_list + _S_freelist_index(__i);
+                __p = *__my_free_list;
+                if (0 != __p) {
+                    *__my_free_list = __p -> _M_free_list_link;
+__default_alloc_template::_S_refill in stl_alloc.h (SGI-STL-master\SGI-STL-master\The Annotated STL Sources V3.3\allocator) : 
+    if (1 == __nobjs) return(__chunk);
+    __my_free_list = _S_free_list + _S_freelist_index(__n);  // 否则根据申请数据块的大小找到相应空闲链表  
+
+    /* Build free list in chunk */
+      __result = (_Obj*)__chunk;
