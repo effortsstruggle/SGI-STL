@@ -50,38 +50,27 @@ __STL_BEGIN_NAMESPACE
  * @param __true_type / __false_type 用来判断可否采用最快速的方式进行拷贝
  * @return __result 
  *
- * copy 最低层源码：(非 radom_access_iterator )
+ * copy 最低层源码：
  *		for ( ; __first != __last; ++__result, ++__first)
- *			*__result = *__first;
+ *			__result = *__first;
  *		return __result;
- *  此时__result 标志在末尾；
- 
- * copy 最低层源码：( radom_access_iterator )
- * 	for (_Distance __n = __last - __first; __n > 0; --__n) 
- *	{
- *	   *__result = *__first;
- *	   ++__first;
- *	   ++__result;
- *	 }
- *	 return __result;
-
  *  此时__result 标志在末尾；
  *
  * _ForwardIter : 允许 “写入型”算法(例如 replace())，在此种选代器所形成的区间上进行读写操作
  */
 template <class _InputIter, class _ForwardIter>
-inline _ForwardIter __uninitialized_copy_aux(_InputIter __first, _InputIter __last,
-							                         _ForwardIter __result,
-							                         __true_type)
+inline _ForwardIter  __uninitialized_copy_aux(_InputIter __first, _InputIter __last,
+                         _ForwardIter __result,
+                         __true_type)
 {
-  return copy(__first, __last, __result); 
+  return ::copy(__first, __last, __result); 
 }
 
 
 template <class _InputIter, class _ForwardIter>
 _ForwardIter  __uninitialized_copy_aux(_InputIter __first, _InputIter __last,
-					                         _ForwardIter __result,
-					                         __false_type)
+                         _ForwardIter __result,
+                         __false_type)
 {
   _ForwardIter __cur = __result;
   
@@ -89,14 +78,12 @@ _ForwardIter  __uninitialized_copy_aux(_InputIter __first, _InputIter __last,
   { 
     for ( ; __first != __last ; ++__first, ++__cur )
     {
-    	//更改 “迭代器指针指向” 的空间的值 ，
-    	_Construct(&(*__cur), *__first); //定位new表达式（使用的是           “迭代器指针指向” 的地址）： new ( (void*) &(*__cur) ) _T1( *__first );   // placement new，调用 _T1::_T1( *__first );
+    	_Construct(&(*__cur), *__first); //定位new表达式（使用的是 *cur 的地址）： new ( (void*) &(*__cur) ) _T1( *__first );   // placement new，调用 _T1::_T1( *__first );
     }
 	
-	return __cur ;
+	return __cur;
   }
   __STL_UNWIND( _Destroy(__result, __cur ) ); // __result ： first  __cur ：last
-  
   //  __STL_UNWIND (action) catch(...) { action; throw; }
 }
 
@@ -107,21 +94,19 @@ inline _ForwardIter __uninitialized_copy(_InputIter __first, _InputIter __last,
                      _ForwardIter __result, _Tp*)
 {
   typedef typename __type_traits<_Tp>::is_POD_type _Is_POD;  //_Tp 是类，还是基本类型 , 类：__false_type ，基本类型：__true_type , 原生指针：__true_type
-
   return __uninitialized_copy_aux(__first, __last, __result, _Is_POD());
 }
 
-
 template <class _InputIter, class _ForwardIter>
-inline _ForwardIter uninitialized_copy(_InputIter __first , _InputIter __last , _ForwardIter __result)
+inline _ForwardIter uninitialized_copy(_InputIter __first, _InputIter __last,
+                     _ForwardIter __result)
 {
-  return __uninitialized_copy( __first , __last , __result , __VALUE_TYPE(__result) );
+  return __uninitialized_copy(__first , __last , __result , __VALUE_TYPE(__result) );
 }
 
- inline char* uninitialized_copy(const char* __first , const char* __last , char* __result) 
-{
-  memmove( __result , __first , __last - __first );
-  
+inline char* uninitialized_copy(const char* __first, const char* __last,
+                                char* __result) {
+  memmove(__result, __first, __last - __first);
   return __result + (__last - __first);
 }
 
@@ -152,42 +137,41 @@ inline wchar_t* uninitialized_copy(const wchar_t* __first, const wchar_t* __last
 		 *__first = __x;
  */
 template <class _InputIter, class _Size, class _ForwardIter>
-pair<_InputIter, _ForwardIter> __uninitialized_copy_n(_InputIter __first , _Size __count , _ForwardIter __result,
-                       										input_iterator_tag)
+pair<_InputIter, _ForwardIter> __uninitialized_copy_n(_InputIter __first, _Size __count,
+                       _ForwardIter __result,
+                       input_iterator_tag)
 {
-	_ForwardIter __cur = __result;
-	__STL_TRY 
-	{
-		for ( ; __count > 0 ; --__count , ++__first , ++__cur) 
-		{
-			_Construct(&(*__cur) , *__first);
-		}
-
-		return pair<_InputIter, _ForwardIter>(__first, __cur);
-	}
-	__STL_UNWIND( _Destroy(__result, __cur) );
+  _ForwardIter __cur = __result;
+  __STL_TRY {
+    for ( ; __count > 0 ; --__count, ++__first, ++__cur) 
+      _Construct(&*__cur, *__first);
+    return pair<_InputIter, _ForwardIter>(__first, __cur);
+  }
+  __STL_UNWIND(_Destroy(__result, __cur));
 }
 
 template <class _RandomAccessIter, class _Size, class _ForwardIter>
-inline pair<_RandomAccessIter, _ForwardIter> __uninitialized_copy_n(_RandomAccessIter __first , _Size __count , _ForwardIter __result ,
-													                       random_access_iterator_tag)
-{                       
+inline pair<_RandomAccessIter, _ForwardIter> __uninitialized_copy_n(_RandomAccessIter __first, _Size __count,
+                       _ForwardIter __result,
+                       random_access_iterator_tag) {
   _RandomAccessIter __last = __first + __count;
-  
-  return pair<_RandomAccessIter, _ForwardIter>( __last , uninitialized_copy( __first, __last, __result ) );
-}
-
-//目前看来 和 uninitialized_copy_n 功能一样 
-template <class _InputIter, class _Size, class _ForwardIter>
-inline pair<_InputIter, _ForwardIter> __uninitialized_copy_n(_InputIter __first , _Size __count , _ForwardIter __result) 
-{ 
-   return __uninitialized_copy_n( __first , __count , __result , __ITERATOR_CATEGORY(__first) );
+  return pair<_RandomAccessIter, _ForwardIter>(
+                 __last,
+                 uninitialized_copy(__first, __last, __result));
 }
 
 template <class _InputIter, class _Size, class _ForwardIter>
-inline pair<_InputIter, _ForwardIter> uninitialized_copy_n( _InputIter __first , _Size __count , _ForwardIter __result) 
-{
-  return __uninitialized_copy_n( __first , __count , __result , __ITERATOR_CATEGORY(__first) );
+inline pair<_InputIter, _ForwardIter> __uninitialized_copy_n(_InputIter __first, _Size __count,
+                     _ForwardIter __result) {
+  return __uninitialized_copy_n(__first, __count, __result,
+                                __ITERATOR_CATEGORY(__first));
+}
+
+template <class _InputIter, class _Size, class _ForwardIter>
+inline pair<_InputIter, _ForwardIter> uninitialized_copy_n(_InputIter __first, _Size __count,
+                     _ForwardIter __result) {
+  return __uninitialized_copy_n(__first, __count, __result,
+                                __ITERATOR_CATEGORY(__first));
 }
 
 
@@ -218,26 +202,30 @@ inline void __uninitialized_fill_aux(_ForwardIter __first, _ForwardIter __last,
 }
 
 template <class _ForwardIter, class _Tp>
-void __uninitialized_fill_aux(_ForwardIter __first , _ForwardIter __last , const _Tp& __x , __false_type)
+void __uninitialized_fill_aux(_ForwardIter __first, _ForwardIter __last, 
+                         const _Tp& __x, __false_type)
 {
   _ForwardIter __cur = __first;
-  __STL_TRY 
-  {
+  __STL_TRY {
     for ( ; __cur != __last; ++__cur)
-      _Construct(&(*__cur), __x);
+      _Construct(&*__cur, __x);
   }
   __STL_UNWIND(_Destroy(__first, __cur));
 }
 
 template <class _ForwardIter, class _Tp, class _Tp1>
-inline void __uninitialized_fill(_ForwardIter __first , _ForwardIter __last , const _Tp& __x , _Tp1*)
+inline void __uninitialized_fill(_ForwardIter __first, 
+                                 _ForwardIter __last, const _Tp& __x, _Tp1*)
 {
-  	typedef typename __type_traits<_Tp1>::is_POD_type _Is_POD;
-  	__uninitialized_fill_aux(__first, __last, __x, _Is_POD());                   
+  typedef typename __type_traits<_Tp1>::is_POD_type _Is_POD;
+  __uninitialized_fill_aux(__first, __last, __x, _Is_POD());
+                   
 }
 
 template <class _ForwardIter, class _Tp>
-inline void uninitialized_fill(_ForwardIter __first , _ForwardIter __last , const _Tp& __x )
+inline void uninitialized_fill(_ForwardIter __first,
+                               _ForwardIter __last, 
+                               const _Tp& __x)
 {
   __uninitialized_fill(__first, __last, __x, __VALUE_TYPE(__first));
 }
@@ -321,11 +309,7 @@ inline _ForwardIter __uninitialized_copy_copy(_InputIter1 __first1, _InputIter1 
                           _ForwardIter __result)
 {
   _ForwardIter __mid = uninitialized_copy(__first1, __last1, __result);
-
-  
-  __STL_TRY 
-  {
-  	//此时 __result 位置在 result + (last1 - first1) 这个位置
+  __STL_TRY {
     return uninitialized_copy(__first2, __last2, __mid);
   }
   __STL_UNWIND(_Destroy(__result, __mid));

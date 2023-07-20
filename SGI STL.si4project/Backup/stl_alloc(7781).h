@@ -842,7 +842,7 @@ struct _Alloc_traits<_Tp, __default_alloc_template<__threads, __inst> >
 {
   static const bool _S_instanceless = true;
   typedef simple_alloc<_Tp, __default_alloc_template<__threads, __inst> > 
-        	_Alloc_type;
+          _Alloc_type;
   typedef __allocator<_Tp, __default_alloc_template<__threads, __inst> > 
           allocator_type;
 };
@@ -859,7 +859,8 @@ struct _Alloc_traits<_Tp, debug_alloc<_Alloc> >
 // SGI-style allocators.
 
 template <class _Tp, class _Tp1, int __inst>
-struct _Alloc_traits<_Tp , __allocator<_Tp1, __malloc_alloc_template<__inst> > >
+struct _Alloc_traits<_Tp, 
+                     __allocator<_Tp1, __malloc_alloc_template<__inst> > >
 {
   static const bool _S_instanceless = true;
   typedef simple_alloc<_Tp, __malloc_alloc_template<__inst> > _Alloc_type;
