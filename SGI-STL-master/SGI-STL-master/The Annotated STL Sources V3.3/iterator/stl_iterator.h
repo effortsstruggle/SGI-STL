@@ -1,5 +1,5 @@
 /*
- *
+ * 迭代器
  * Copyright (c) 1994
  * Hewlett-Packard Company
  *
@@ -34,8 +34,16 @@
 __STL_BEGIN_NAMESPACE
 
 
+
+/**
+* @berif back_insert_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 template <class _Container>
-class back_insert_iterator {
+class back_insert_iterator 
+{
 protected:
   _Container* container;
 public:
@@ -60,8 +68,7 @@ public:
 #ifndef __STL_CLASS_PARTIAL_SPECIALIZATION
 
 template <class _Container>
-inline output_iterator_tag
-iterator_category(const back_insert_iterator<_Container>&)
+inline output_iterator_tag iterator_category(const back_insert_iterator<_Container>&)
 {
   return output_iterator_tag();
 }
@@ -69,10 +76,18 @@ iterator_category(const back_insert_iterator<_Container>&)
 #endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
 template <class _Container>
-inline back_insert_iterator<_Container> back_inserter(_Container& __x) {
+inline back_insert_iterator<_Container> back_inserter(_Container& __x)
+{
   return back_insert_iterator<_Container>(__x);
 }
 
+
+/**
+* @berif front_insert_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 template <class _Container>
 class front_insert_iterator {
 protected:
@@ -99,19 +114,23 @@ public:
 #ifndef __STL_CLASS_PARTIAL_SPECIALIZATION
 
 template <class _Container>
-inline output_iterator_tag
-iterator_category(const front_insert_iterator<_Container>&)
+inline output_iterator_tag iterator_category(const front_insert_iterator<_Container>&)
 {
   return output_iterator_tag();
 }
 
 #endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
-template <class _Container>
-inline front_insert_iterator<_Container> front_inserter(_Container& __x) {
+template <class _Container> inline front_insert_iterator<_Container> front_inserter(_Container& __x) {
   return front_insert_iterator<_Container>(__x);
 }
 
+/**
+* @berif insert_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 template <class _Container>
 class insert_iterator {
 protected:
@@ -141,8 +160,7 @@ public:
 #ifndef __STL_CLASS_PARTIAL_SPECIALIZATION
 
 template <class _Container>
-inline output_iterator_tag
-iterator_category(const insert_iterator<_Container>&)
+inline output_iterator_tag iterator_category(const insert_iterator<_Container>&)
 {
   return output_iterator_tag();
 }
@@ -150,21 +168,28 @@ iterator_category(const insert_iterator<_Container>&)
 #endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
 template <class _Container, class _Iterator>
-inline 
-insert_iterator<_Container> inserter(_Container& __x, _Iterator __i)
+inline  insert_iterator<_Container> inserter(_Container& __x, _Iterator __i)
 {
   typedef typename _Container::iterator __iter;
   return insert_iterator<_Container>(__x, __iter(__i));
 }
 
 #ifndef __STL_LIMITED_DEFAULT_TEMPLATES
-template <class _BidirectionalIterator, class _Tp, class _Reference = _Tp&, 
-          class _Distance = ptrdiff_t> 
+	template <class _BidirectionalIterator, class _Tp, class _Reference = _Tp&, 
+          	class _Distance = ptrdiff_t> 
 #else
-template <class _BidirectionalIterator, class _Tp, class _Reference, 
-          class _Distance> 
+	template <class _BidirectionalIterator, class _Tp, class _Reference, 
+          	class _Distance> 
 #endif
+
+/**
+* @berif reverse_bidirectional_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 class reverse_bidirectional_iterator {
+
   typedef reverse_bidirectional_iterator<_BidirectionalIterator, _Tp, 
                                          _Reference, _Distance>  _Self;
 protected:
@@ -179,8 +204,11 @@ public:
   reverse_bidirectional_iterator() {}
   explicit reverse_bidirectional_iterator(_BidirectionalIterator __x)
     : current(__x) {}
+	
   _BidirectionalIterator base() const { return current; }
-  _Reference operator*() const {
+  
+  _Reference operator*() const 
+  {
     _BidirectionalIterator __tmp = current;
     return *--__tmp;
   }
@@ -209,31 +237,26 @@ public:
 
 #ifndef __STL_CLASS_PARTIAL_SPECIALIZATION
 
-template <class _BidirectionalIterator, class _Tp, class _Reference, 
-          class _Distance>
-inline bidirectional_iterator_tag
-iterator_category(const reverse_bidirectional_iterator<_BidirectionalIterator,
-                                                       _Tp, _Reference, 
-                                                       _Distance>&) 
+template <class _BidirectionalIterator  , class _Tp , class _Reference , class _Distance>
+inline bidirectional_iterator_tag iterator_category(const reverse_bidirectional_iterator< _BidirectionalIterator ,
+														_Tp , _Reference , 
+														_Distance >&) 
 {
   return bidirectional_iterator_tag();
 }
 
-template <class _BidirectionalIterator, class _Tp, class _Reference, 
-          class _Distance>
-inline _Tp*
-value_type(const reverse_bidirectional_iterator<_BidirectionalIterator, _Tp,
-                                               _Reference, _Distance>&)
+template <class _BidirectionalIterator , class _Tp , class _Reference , class _Distance>
+ inline _Tp* value_type(const reverse_bidirectional_iterator< _BidirectionalIterator , 
+						 _Tp , _Reference , 
+						 _Distance >&)
 {
   return (_Tp*) 0;
 }
 
-template <class _BidirectionalIterator, class _Tp, class _Reference, 
-          class _Distance>
-inline _Distance*
-distance_type(const reverse_bidirectional_iterator<_BidirectionalIterator, 
-                                                   _Tp,
-                                                   _Reference, _Distance>&)
+template < class _BidirectionalIterator , class _Tp , class _Reference , class _Distance >
+inline _Distance* distance_type(const reverse_bidirectional_iterator< _BidirectionalIterator ,
+									_Tp , _Reference , 
+									_Distance >&)
 {
   return (_Distance*) 0;
 }
@@ -263,12 +286,20 @@ inline bool operator!=(
 
 #ifdef __STL_CLASS_PARTIAL_SPECIALIZATION
 
+
+
+
+/**
+* @berif reverse_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 // This is the new version of reverse_iterator, as defined in the
 //  draft C++ standard.  It relies on the iterator_traits template,
 //  which in turn relies on partial specialization.  The class
 //  reverse_bidirectional_iterator is no longer part of the draft
 //  standard, but it is retained for backward compatibility.
-
 template <class _Iterator>
 class reverse_iterator 
 {
@@ -405,12 +436,19 @@ operator+(typename reverse_iterator<_Iterator>::difference_type __n,
 //  HP STL.  It does not use partial specialization.
 
 #ifndef __STL_LIMITED_DEFAULT_TEMPLATES
-template <class _RandomAccessIterator, class _Tp, class _Reference = _Tp&,
-          class _Distance = ptrdiff_t> 
+	template <class _RandomAccessIterator, class _Tp, class _Reference = _Tp&,
+          	class _Distance = ptrdiff_t> 
 #else
-template <class _RandomAccessIterator, class _Tp, class _Reference,
-          class _Distance> 
+	template <class _RandomAccessIterator, class _Tp, class _Reference,
+          	class _Distance> 
 #endif
+
+/**
+* @berif reverse_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 class reverse_iterator {
   typedef reverse_iterator<_RandomAccessIterator, _Tp, _Reference, _Distance>
         _Self;
@@ -585,9 +623,15 @@ operator+(_Dist __n,
 
 #ifdef __STL_USE_NEW_IOSTREAMS
 
-template <class _Tp, 
-          class _CharT = char, class _Traits = char_traits<_CharT>,
-          class _Dist = ptrdiff_t> 
+
+/**
+* @berif istream_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
+template < class _Tp , class _CharT = char , 
+		  class _Traits = char_traits<_CharT> , class _Dist = ptrdiff_t > 
 class istream_iterator {
 public:
   typedef _CharT                         char_type;
@@ -634,8 +678,7 @@ private:
 };
 
 template <class _Tp, class _CharT, class _Traits, class _Dist>
-inline bool 
-operator==(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
+inline bool  operator==(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
            const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __y) {
   return __x._M_equal(__y);
 }
@@ -643,16 +686,22 @@ operator==(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
 #ifdef __STL_FUNCTION_TMPL_PARTIAL_ORDER
 
 template <class _Tp, class _CharT, class _Traits, class _Dist>
-inline bool 
-operator!=(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
+inline bool  operator!=(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
            const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __y) {
   return !__x._M_equal(__y);
 }
 
 #endif /* __STL_FUNCTION_TMPL_PARTIAL_ORDER */
 
-template <class _Tp,
-          class _CharT = char, class _Traits = char_traits<_CharT> >
+
+/**
+* @berif ostream_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
+template <class _Tp , class _CharT = char ,
+ 		  class _Traits = char_traits<_CharT> >
 class ostream_iterator {
 public:
   typedef _CharT                         char_type;
@@ -681,6 +730,14 @@ private:
   const _CharT* _M_string;
 };
 
+
+
+/**
+* @berif istreambuf_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 // The default template argument is declared in iosfwd
 
 // We do not read any characters until operator* is called.  The first
@@ -794,6 +851,13 @@ inline bool operator!=(const istreambuf_iterator<_CharT, _Traits>& __x,
 
 #endif /* __STL_FUNCTION_TMPL_PARTIAL_ORDER */
 
+
+/**
+* @berif ostreambuf_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 // The default template argument is declared in iosfwd
 template<class _CharT, class _Traits>
 class ostreambuf_iterator
@@ -832,12 +896,21 @@ private:
 
 template <class _Tp, class _Dist = ptrdiff_t> class istream_iterator;
 
-template <class _Tp, class _Dist>
+template <class _Tp, class _Dist> 
 inline bool operator==(const istream_iterator<_Tp, _Dist>&,
                        const istream_iterator<_Tp, _Dist>&);
 
+
+
+/**
+* @berif istream_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 template <class _Tp, class _Dist>
 class istream_iterator {
+
 #ifdef __STL_TEMPLATE_FRIENDS
   template <class _T1, class _D1>
   friend bool operator==(const istream_iterator<_T1, _D1>&,
@@ -891,12 +964,10 @@ iterator_category(const istream_iterator<_Tp, _Dist>&)
 }
 
 template <class _Tp, class _Dist>
-inline _Tp* 
-value_type(const istream_iterator<_Tp, _Dist>&) { return (_Tp*) 0; }
+inline _Tp* value_type(const istream_iterator<_Tp, _Dist>&) { return (_Tp*) 0; }
 
 template <class _Tp, class _Dist>
-inline _Dist* 
-distance_type(const istream_iterator<_Tp, _Dist>&) { return (_Dist*)0; }
+inline _Dist* distance_type(const istream_iterator<_Tp, _Dist>&) { return (_Dist*)0; }
 
 #endif /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
@@ -918,6 +989,12 @@ inline bool operator!=(const istream_iterator<_Tp, _Distance>& __x,
 
 #endif /* __STL_FUNCTION_TMPL_PARTIAL_ORDER */
 
+/**
+* @berif ostream_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 template <class _Tp>
 class ostream_iterator {
 protected:

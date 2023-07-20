@@ -333,17 +333,18 @@ struct _STL_mutex_lock
 };
 
 #ifdef __STL_PTHREADS
-// Pthreads locks must be statically initialized to something other than
-// the default value of zero.
-#   define __STL_MUTEX_INITIALIZER = { PTHREAD_MUTEX_INITIALIZER }
+	// Pthreads locks must be statically initialized to something other than
+	// the default value of zero.
+	#define __STL_MUTEX_INITIALIZER = { PTHREAD_MUTEX_INITIALIZER }
+	
 #elif defined(__STL_UITHREADS)
 // UIthreads locks must be statically initialized to something other than
 // the default value of zero.
-#   define __STL_MUTEX_INITIALIZER = { DEFAULTMUTEX }
+	#define __STL_MUTEX_INITIALIZER = { DEFAULTMUTEX }
 #elif defined(__STL_SGI_THREADS) || defined(__STL_WIN32THREADS)
-#   define __STL_MUTEX_INITIALIZER = { 0 }
+	#define __STL_MUTEX_INITIALIZER = { 0 }
 #else
-#   define __STL_MUTEX_INITIALIZER
+	#define __STL_MUTEX_INITIALIZER
 #endif
 
 

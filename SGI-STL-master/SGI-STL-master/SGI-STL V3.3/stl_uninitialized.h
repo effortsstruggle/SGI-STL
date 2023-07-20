@@ -47,7 +47,7 @@ __STL_BEGIN_NAMESPACE
  * @param __first 开始迭代器
  * @param __last 结束迭代器
  * @param __result 结果
- * @param __true_type 仅仅用作重载函数的标记
+ * @param __true_type / __false_type 用来判断可否采用最快速的方式进行拷贝
  * @return __result 
  *
  * copy 最低层源码：
@@ -63,7 +63,7 @@ inline _ForwardIter  __uninitialized_copy_aux(_InputIter __first, _InputIter __l
                          _ForwardIter __result,
                          __true_type)
 {
-  return copy(__first, __last, __result); 
+  return ::copy(__first, __last, __result); 
 }
 
 
@@ -73,22 +73,27 @@ _ForwardIter  __uninitialized_copy_aux(_InputIter __first, _InputIter __last,
                          __false_type)
 {
   _ForwardIter __cur = __result;
-  __STL_TRY { //捕获异常 try{
-    for ( ; __first != __last; ++__first, ++__cur)
-      _Construct(&*__cur, *__first); //定位new表达式： new ((void*) &*__cur) _T1( *__first );   // placement new，调用 _T1::_T1( *__first );
-    return __cur;
+  
+  __STL_TRY  //捕获异常 try 
+  { 
+    for ( ; __first != __last ; ++__first, ++__cur )
+    {
+    	_Construct(&(*__cur), *__first); //定位new表达式（使用的是 *cur 的地址）： new ( (void*) &(*__cur) ) _T1( *__first );   // placement new，调用 _T1::_T1( *__first );
+    }
+	
+	return __cur;
   }
-  __STL_UNWIND( //catch(...){}
-  	_Destroy(__result, __cur) // __result ： first   __cur ：last
-  ); 
+  __STL_UNWIND( _Destroy(__result, __cur ) ); // __result ： first  __cur ：last
+  //  __STL_UNWIND (action) catch(...) { action; throw; }
 }
+
 
 
 template <class _InputIter, class _ForwardIter, class _Tp>
 inline _ForwardIter __uninitialized_copy(_InputIter __first, _InputIter __last,
                      _ForwardIter __result, _Tp*)
 {
-  typedef typename __type_traits<_Tp>::is_POD_type _Is_POD;
+  typedef typename __type_traits<_Tp>::is_POD_type _Is_POD;  //_Tp 是类，还是基本类型 , 类：__false_type ，基本类型：__true_type , 原生指针：__true_type
   return __uninitialized_copy_aux(__first, __last, __result, _Is_POD());
 }
 
@@ -96,8 +101,7 @@ template <class _InputIter, class _ForwardIter>
 inline _ForwardIter uninitialized_copy(_InputIter __first, _InputIter __last,
                      _ForwardIter __result)
 {
-  return __uninitialized_copy(__first, __last, __result,
-                              __VALUE_TYPE(__result));
+  return __uninitialized_copy(__first , __last , __result , __VALUE_TYPE(__result) );
 }
 
 inline char* uninitialized_copy(const char* __first, const char* __last,
