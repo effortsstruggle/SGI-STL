@@ -327,10 +327,8 @@ public:
   reverse_iterator(const _Self& __x) : current(__x.current) {}
 #ifdef __STL_MEMBER_TEMPLATES
   template <class _Iter>
-  reverse_iterator(const reverse_iterator<_Iter>& __x) : current(__x.base()) 
-  {
-
-  }
+  reverse_iterator(const reverse_iterator<_Iter>& __x)
+    : current(__x.base()) {}
 #endif /* __STL_MEMBER_TEMPLATES */
     
   iterator_type base() const { return current; }
@@ -434,15 +432,6 @@ operator+(typename reverse_iterator<_Iterator>::difference_type __n,
 
 #else /* __STL_CLASS_PARTIAL_SPECIALIZATION */
 
-
-
-
-/**
-* @berif reverse_iterator 第8章讨论
-* @author wq 
-* @date 2023/07/19
-* @return
-*/
 // This is the old version of reverse_iterator, as found in the original
 //  HP STL.  It does not use partial specialization.
 
@@ -453,8 +442,16 @@ operator+(typename reverse_iterator<_Iterator>::difference_type __n,
 	template <class _RandomAccessIterator, class _Tp, class _Reference,
           	class _Distance> 
 #endif
+
+/**
+* @berif reverse_iterator 第8章讨论
+* @author wq 
+* @date 2023/07/19
+* @return
+*/
 class reverse_iterator {
-  typedef reverse_iterator<_RandomAccessIterator, _Tp, _Reference, _Distance>  _Self;
+  typedef reverse_iterator<_RandomAccessIterator, _Tp, _Reference, _Distance>
+        _Self;
 protected:
   _RandomAccessIterator current;
 public:
@@ -601,7 +598,8 @@ operator>=(const reverse_iterator<_RandomAccessIterator, _Tp,
 
 template <class _RandomAccessIterator, class _Tp,
           class _Reference, class _Distance>
-inline _Distance  operator-(const reverse_iterator<_RandomAccessIterator, _Tp,
+inline _Distance 
+operator-(const reverse_iterator<_RandomAccessIterator, _Tp,
                                  _Reference, _Distance>& __x, 
           const reverse_iterator<_RandomAccessIterator, _Tp,
                                  _Reference, _Distance>& __y)
@@ -610,7 +608,9 @@ inline _Distance  operator-(const reverse_iterator<_RandomAccessIterator, _Tp,
 }
 
 template <class _RandAccIter, class _Tp, class _Ref, class _Dist>
-inline reverse_iterator<_RandAccIter, _Tp, _Ref, _Dist>  operator+(_Dist __n , const reverse_iterator<_RandAccIter , _Tp , _Ref , _Dist>& __x)
+inline reverse_iterator<_RandAccIter, _Tp, _Ref, _Dist> 
+operator+(_Dist __n,
+          const reverse_iterator<_RandAccIter, _Tp, _Ref, _Dist>& __x)
 {
   return reverse_iterator<_RandAccIter, _Tp, _Ref, _Dist>(__x.base() - __n);
 }

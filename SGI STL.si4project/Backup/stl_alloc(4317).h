@@ -256,22 +256,13 @@ class simple_alloc {
 public:
     // 配置 n 个元素
     static _Tp* allocate(size_t __n)
-    { 
-      return 0 == __n ? 0 : (_Tp*) _Alloc::allocate(__n * sizeof (_Tp)); 
-	}
+      { return 0 == __n ? 0 : (_Tp*) _Alloc::allocate(__n * sizeof (_Tp)); }
     static _Tp* allocate(void)
-    { 
-    	return (_Tp*) _Alloc::allocate(sizeof (_Tp)); 
-	}
+      { return (_Tp*) _Alloc::allocate(sizeof (_Tp)); }
     static void deallocate(_Tp* __p, size_t __n)
-    { 
-    	if (0 != __n) 
-    		_Alloc::deallocate(__p, __n * sizeof (_Tp)); 
-	}
+      { if (0 != __n) _Alloc::deallocate(__p, __n * sizeof (_Tp)); }
     static void deallocate(_Tp* __p)
-    { 
-    	_Alloc::deallocate(__p, sizeof (_Tp)); 
-	}
+      { _Alloc::deallocate(__p, sizeof (_Tp)); }
 };
 
 
@@ -925,7 +916,6 @@ struct __allocator {
   };
 
   __allocator() __STL_NOTHROW {}
-
   __allocator(const __allocator& __a) __STL_NOTHROW
     : __underlying_alloc(__a.__underlying_alloc) {}
 	
