@@ -711,7 +711,6 @@ protected:
 		__STL_TRY 
 		{
 		  uninitialized_copy(__first, __last, __result);
-		  
 		  return __result;
 		}
 		__STL_UNWIND(_M_deallocate(__result, __n));
@@ -821,54 +820,42 @@ vector<_Tp,_Alloc>&  vector<_Tp,_Alloc>::operator=(const vector<_Tp, _Alloc>& __
 	if (&__x != this) 
 	{
 		const size_type __xlen = __x.size();
-		
-		if (__xlen > this->capacity())  // __x 的元素个数  > this的容量
+		if (__xlen > capacity()) 
 		{
 			iterator __tmp = _M_allocate_and_copy(__xlen, __x.begin(), __x.end());
-			
 			destroy(_M_start, _M_finish);
-
 			_M_deallocate(_M_start, _M_end_of_storage - _M_start);
-
 			_M_start = __tmp;
-
 			_M_end_of_storage = _M_start + __xlen;
 		}
-		else if (size() >= __xlen) //this的元素个数 > x的元素个数
+		else if (size() >= __xlen)
 		{
-			iterator __i = copy(__x.begin(), __x.end(), this->begin());
-			destroy(__i, _M_finish); 
+			iterator __i = copy(__x.begin(), __x.end(), begin());
+			destroy(__i, _M_finish);
 		}
-		else // this->size() < x->size && this->capacity() >= x->size()
+		else
 		{
 			copy(__x.begin(), __x.begin() + size(), _M_start);
-			uninitialized_copy(__x.begin() + size() , __x.end(), _M_finish);
+			uninitialized_copy(__x.begin() + size(), __x.end(), _M_finish);
 		}
-
 		_M_finish = _M_start + __xlen;
-		
   	} 
-	
   return *this;
 }
 
 template <class _Tp, class _Alloc>
 void vector<_Tp, _Alloc>::_M_fill_assign(size_t __n, const value_type& __val) 
 {
-	if (__n > this->capacity()) //当 n > this->capacity() ，重新分配空间 
-	{
-		vector<_Tp, _Alloc> __tmp(__n, __val, this->get_allocator());
-		__tmp.swap(*this);
-	}
-	else if (__n > this->size())  //当n > this->size() 且 n < this->capacity ; 
-	{
-		fill(this->begin(), this->end(), __val);
-		_M_finish = uninitialized_fill_n(_M_finish, __n - size(), __val);
-	}
-	else //n < this->size 且 n < this->capacity 
-	{
-		this->erase( fill_n (begin(), __n, __val) , end() );
-	}
+  if (__n > capacity()) {
+    vector<_Tp, _Alloc> __tmp(__n, __val, get_allocator());
+    __tmp.swap(*this);
+  }
+  else if (__n > size()) {
+    fill(begin(), end(), __val);
+    _M_finish = uninitialized_fill_n(_M_finish, __n - size(), __val);
+  }
+  else
+    erase(fill_n(begin(), __n, __val), end());
 }
 
 #ifdef __STL_MEMBER_TEMPLATES
@@ -892,19 +879,15 @@ void vector<_Tp, _Alloc>::_M_assign_aux(_ForwardIter __first , _ForwardIter __la
   
   distance(__first, __last, __len);
 
-	if (__len > this->capacity()) 
+	if (__len > capacity()) 
 	{
-		iterator __tmp = _M_allocate_and_copy(__len, __first , __last );
-		
+		iterator __tmp = _M_allocate_and_copy(__len, __first, __last);
 		destroy(_M_start, _M_finish);
-
-		_M_deallocate(_M_start , _M_end_of_storage - _M_start );
-
+		_M_deallocate(_M_start, _M_end_of_storage - _M_start);
 		_M_start = __tmp;
-
 		_M_end_of_storage = _M_finish = _M_start + __len;
 	}
-	else if (this->size() >= __len) 
+	else if (size() >= __len) 
 	{
 		iterator __new_finish = copy(__first, __last, _M_start);
 		destroy(__new_finish, _M_finish);
@@ -1044,11 +1027,8 @@ void vector<_Tp, _Alloc>::_M_fill_insert(iterator __position, size_type __n , co
 			{
 				// "插入点之后的现有元素个数" 大于 "新增元素个数"
 				uninitialized_copy(_M_finish - __n, _M_finish, _M_finish);
-
 				_M_finish += __n; // 将 vector 尾端标记后移
-				
 				copy_backward(__position, __old_finish - __n, __old_finish); // 向后复制
-
 				fill(__position, __position + __n, __x_copy); // 填充
 			}
 			else 

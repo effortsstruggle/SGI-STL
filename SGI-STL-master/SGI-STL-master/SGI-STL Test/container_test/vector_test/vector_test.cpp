@@ -1,100 +1,99 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
 
 /**
  * vector 的操作
  */
 template <typename T>
-void printVector(const vector<T>& vec)
+void printVector(const std::vector<T>& vec)
 {
 	for (auto x : vec) {
-		cout << x << " ";
+		std::cout << x << " ";
 	}
 
-	cout << endl;
+	std::cout << std::endl;
 }
 
 int main()
 {
 	// 构造函数:四种形式
-	vector<string> iv(2, "hi");
+	std::vector<std::string> iv(2, "hi");
 	printVector(iv);
 
-	vector<string> sv{"why", "always", "me"};
+	std::vector<std::string> sv {"why", "always", "me"} ; //列表初始化
 	printVector(sv);
 
-	vector<string> sv2(sv.begin(), sv.end());
+	std::vector<std::string> sv2(sv.begin(), sv.end());
 	printVector(sv2);
 
-	vector<string> sv3(sv);
+	std::vector<std::string> sv3(sv); //拷贝构造
 	printVector(sv3);
 
-	// operator= 赋值运算符
-	vector<string> sv4;
+	// // operator= 赋值运算符
+	std::vector<std::string> sv4;
 	sv4 = sv;
 	printVector(sv4);
 
-	// assign
-	vector<char> cv;
-	cv.assign(5, 'x');
+	// // assign 
+	std::vector<char> cv;
+	cv.assign(5 , 'x');
 	printVector(cv);
 	
-	vector<char> cv1;
+	std::vector<char> cv1;
 	cv1.assign(cv.begin(), cv.end());
 	printVector(cv1);
 
 	// at(索引)
-	cout << cv1.at(1) << endl;
+	std::cout << cv1.at(1) << std::endl;
 
 	// operator[] 
 	cv1[1] = 'a';
 	printVector(cv1);
 
-	// front 容器首元素
-	cout << sv.front() << endl;
+	// // front 容器首元素
+	std::cout << sv.front() << std::endl;
 	
-	// back 容器最后一个元素
-	cout << sv.back() << endl;
+	// // back 容器最后一个元素
+	std::cout << sv.back() << std::endl;
 
 	// begin 返回指向容器第一个元素的迭代器
 	// end 返回指向容器尾端的迭代器
-	for (vector<string>::iterator it = sv.begin(); it != sv.end(); it++) {
-		cout << *it << " ";	
+	for (std::vector<std::string>::iterator it = sv.begin(); it != sv.end(); it++) {
+		std::cout << *it << " ";	
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 	// rbegin 返回一个指向容器最后一个元素的反向迭代器 
 	// rend 返回一个指向容器前端的反向迭代器
-	for (vector<string>::reverse_iterator it = sv.rbegin(); it != sv.rend(); it++) {
-		cout << *it << " ";
+	for (std::vector<std::string>::reverse_iterator it = sv.rbegin(); it != sv.rend(); it++) {
+		std::cout << *it << " ";
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 	// empty 若容器为空则为 true ，否则为 false
 	if (sv.empty()) {
-		cout << "container is null." << endl;
+		std::cout << "container is null." << std::endl;
 	} else {
-		cout << "container is not null." << endl;
+		std::cout << "container is not null." << std::endl;
 	}
 
 	// size	容器中的元素个数
-	cout << sv.size() << endl;
+	std::cout << sv.size() << std::endl;
 
 	// max_size 元素数量的最大值
-	cout << sv.max_size() << endl;
+	std::cout << sv.max_size() << std::endl;
 
 	// capacity 当前分配存储的容量
-	cout << sv.capacity() << endl;
+	std::cout << sv.capacity() << std::endl;
 
 	// resize 改变容器中可存储元素的个数 
-	sv.resize(10);
-	cout << sv.capacity() << endl;
+	sv.push_back("abc");
+	std::cout << sv.capacity() << std::endl;
 	
-	// shrink_to_fit 请求移除未使用的容量
+	// // shrink_to_fit 请求移除未使用的容量
 	sv.shrink_to_fit();
-	cout << sv.capacity() << endl;
+	std::cout << sv.capacity() << std::endl;
 
   	// clear 从容器移除所有元素
 	iv.clear();
@@ -109,7 +108,7 @@ int main()
 	printVector(sv);
 
 	it = sv.begin();
-	vector<string> sv5(2, "xx");
+	std::vector<std::string> sv5(2, "xx");
 	sv.insert(it+2, sv5.begin(), sv5.end());
 	printVector(sv);
 
@@ -121,7 +120,7 @@ int main()
 	printVector(sv);
 	
 	// push_back 向容器尾部插入元素
-	cout << sv.size() << endl;
+	std::cout << sv.size() << std::endl;
 	sv.push_back("add");
 	printVector(sv);
 
