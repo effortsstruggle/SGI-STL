@@ -135,14 +135,14 @@ struct _List_iterator : public _List_iterator_base
 	_Self operator++(int) 
 	{ 
 		_Self __tmp = *this;
-		this->_M_incr(); //前驱
+		this->_M_incr();
 		return __tmp;
 	}
 	
 	// 迭代器先后退一个节点
 	_Self& operator--() 
 	{ 
-		this->_M_decr(); //后继
+		this->_M_decr();
 		return *this;
 	}
 	
@@ -242,7 +242,7 @@ struct _List_iterator : public _List_iterator_base
 
 		_List_node<_Tp>* _M_get_node() 
 		{ 
-			return _Alloc_type::allocate( 1 ); 
+			return _Alloc_type::allocate(1); 
 		}
 		
 		void _M_put_node(_List_node<_Tp>* __p)
@@ -273,7 +273,7 @@ struct _List_iterator : public _List_iterator_base
 			_M_node->_M_next = _M_node;
 			_M_node->_M_prev = _M_node;
 		}
-[]
+
 		~_List_base() 
 		{
 			clear();
@@ -320,7 +320,7 @@ struct _List_iterator : public _List_iterator_base
 		// 配置一个节点并传回
 		_List_node<_Tp>* _M_get_node() 
 		{ 
-			return _Alloc_type::allocate(1);  //空间为 1 * sizeof( _Tp )
+			return _Alloc_type::allocate(1);  //空间为1
 		} 
 		
 		// 释放一个节点
@@ -380,7 +380,7 @@ public:
 	typedef const value_type* const_pointer;
 	typedef value_type& reference;
 	typedef const value_type& const_reference;
-	typedef _List_node<_Tp> _Node; //节点类型
+	typedef _List_node<_Tp> _Node;
 	typedef size_t size_type;
 	typedef ptrdiff_t difference_type;
 
@@ -416,10 +416,10 @@ protected:
 	// 创建(配置并构造)一个节点，带有元素值
 	_Node* _M_create_node(const _Tp& __x)
 	{
-		_Node* __p = /*_Base::*/_M_get_node(); //调用空间配置器构造一个空间
+		_Node* __p = /*_Base::*/_M_get_node();
 		__STL_TRY 
 		{
-			_Construct(&__p->_M_data, __x); //调用构造器，给构造的空间赋值
+			_Construct(&__p->_M_data, __x);
 		}
 		__STL_UNWIND(/*_Base::*/_M_put_node(__p));
 		return __p;
@@ -446,7 +446,7 @@ public:
 	// 指向首元素的迭代器
 	iterator begin()           
 	{ 
-		return (_Node*)( _M_node->_M_next );  //隐式调用iterator构造器
+		return (_Node*)( _M_node->_M_next ); 
 	}
 	const_iterator begin() const 
 	{

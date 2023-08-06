@@ -483,6 +483,7 @@ public:
 		}
 		
 		return __ret;
+		
 	};
 
 	/* __p may not be 0 */

@@ -37,8 +37,7 @@ __STL_BEGIN_NAMESPACE
 
 // Forward declarations of operators < and ==, needed for friend declaration.
 
-template <class _Tp, 
-          class _Sequence __STL_DEPENDENT_DEFAULT_TMPL(deque<_Tp>) >
+template <class _Tp , class _Sequence __STL_DEPENDENT_DEFAULT_TMPL(deque<_Tp>) >
 class queue;
 
 template <class _Tp, class _Seq>
@@ -47,7 +46,7 @@ inline bool operator==(const queue<_Tp, _Seq>&, const queue<_Tp, _Seq>&);
 template <class _Tp, class _Seq>
 inline bool operator<(const queue<_Tp, _Seq>&, const queue<_Tp, _Seq>&);
 
-// queue 类实现，与 stack 类似；其中 _Sequence 类就是继承的底层容器
+// queue 类实现，与 stack 类似；其中 _Sequence 类就是继承的底层容器( 默认deque<Tp> ) 
 template <class _Tp, class _Sequence>
 class queue {
 
@@ -92,9 +91,23 @@ public:
   reference front() { return c.front(); }  // 返回首部元素
   const_reference front() const { return c.front(); }
   reference back() { return c.back(); }  // 返回尾部元素
-  const_reference back() const { return c.back(); }
-  void push(const value_type& __x) { c.push_back(__x); }  // 尾部进入元素
-  void pop() { c.pop_front(); }  // 首部弹出元素
+
+  const_reference back() const
+  {
+  	return c.back();
+  }
+
+  // 尾部进入元素
+  void push(const value_type& __x) 
+  { 
+  	c.push_back(__x); 
+  }  
+
+  // 首部弹出元素
+  void pop() 
+  {
+  	c.pop_front();
+  }  
 };
 
 // 两个 queue 比较
@@ -148,8 +161,7 @@ operator>=(const queue<_Tp, _Sequence>& __x, const queue<_Tp, _Sequence>& __y)
 // 优先队列，默认底层容器是 vector，利用 max-heap 规则 
 template <class _Tp, 
           class _Sequence __STL_DEPENDENT_DEFAULT_TMPL(vector<_Tp>),
-          class _Compare
-          __STL_DEPENDENT_DEFAULT_TMPL(less<typename _Sequence::value_type>) >
+          class _Compare __STL_DEPENDENT_DEFAULT_TMPL(less<typename _Sequence::value_type>) >
 class priority_queue {
 
   // requirements:

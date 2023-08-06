@@ -27,47 +27,47 @@ void printArray(T arr[], size_t size)
 int main()
 {
 	// heap 底层使用 vector 容器
-	vector<int> iv{1, 5, 9, 3, 2, 0, 4};
-	
+	//vector<int> iv{1, 5, 9, 3, 2, 0, 4};
+	vector< int > iv{ 50 , 65 , 68 , 22 , 31 , 21 };
 	// 调整为 heap
 	make_heap(iv.begin(), iv.end());
 
 	printHeap(iv);
 
 	// 对 vector 尾部插入 8
-	iv.push_back(8);
+	// iv.push_back(8);
 
-	// 新插入 8，对 heap 重新调整
-	push_heap(iv.begin(), iv.end());
+	// // 新插入 8，对 heap 重新调整
+	// push_heap(iv.begin(), iv.end());
 
-	printHeap(iv);
+	// printHeap(iv);
 	
-	// 将 vector 的首元素放到尾端
-	pop_heap(iv.begin(), iv.end());
+	// // 将 vector 的首元素放到尾端
+	// pop_heap(iv.begin(), iv.end());
 
-	// vector 的操作
-	cout << iv.back() << endl;
+	// // vector 的操作
+	// cout << iv.back() << endl;
 
-	iv.pop_back();
+	// iv.pop_back();
 
-	printHeap(iv);
+	// printHeap(iv);
 
-	// 对 heap 排序
-	sort_heap(iv.begin(), iv.end());
+	// // 对 heap 排序
+	// sort_heap(iv.begin(), iv.end());
 
-	printHeap(iv);
+	// printHeap(iv);
 
-	// heap 底层使用 array 数组
-	int arr[] = {12, 34, 15, 63, 17};
+	// // heap 底层使用 array 数组
+	// int arr[] = {12, 34, 15, 63, 17};
 
-	make_heap(arr, arr+5);  // array 大小一定，不能做 push_back 操作
+	// make_heap(arr, arr+5);  // array 大小一定，不能做 push_back 操作
 
-	size_t arr_size = sizeof(arr) / sizeof(arr[0]);
+	// size_t arr_size = sizeof(arr) / sizeof(arr[0]);
 
-	printArray(arr, arr_size);
+	// printArray(arr, arr_size);
 	
-    // 对 heap 排序
-	sort_heap(arr, arr+5);
+    // // 对 heap 排序
+	// sort_heap(arr, arr+5);
 
-	printArray(arr, arr_size);
+	// printArray(arr, arr_size);
 }

@@ -1,5 +1,5 @@
 {
-    "C_Cpp.default.compilerPath": "d:\\MingW64\\bin\\g++.exe",
+    "C_Cpp.default.compilerPath": "D:\\MingW64\\bin\\g++.exe",
     "files.associations": {
         "vector": "cpp",
         "array": "cpp",
