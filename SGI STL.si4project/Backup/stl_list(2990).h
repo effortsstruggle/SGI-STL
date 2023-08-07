@@ -44,8 +44,8 @@ __STL_BEGIN_NAMESPACE
 // 双向链表
 struct _List_node_base 
 {
-  _List_node_base* _M_next; //前驱
-  _List_node_base* _M_prev; //后继
+  _List_node_base* _M_next;
+  _List_node_base* _M_prev;
 };
 
 // list 节点
@@ -77,7 +77,7 @@ struct _List_iterator_base
 	// 后继
 	void _M_decr()   
 	{ 
-		_M_node = _M_node->_M_prev;  
+		_M_node = _M_node->_M_prev; 
 	}  
 
 	// 比较两个容器操作

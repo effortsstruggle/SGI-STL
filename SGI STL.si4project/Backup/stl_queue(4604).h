@@ -158,24 +158,19 @@ operator>=(const queue<_Tp, _Sequence>& __x, const queue<_Tp, _Sequence>& __y)
 #endif /* __STL_FUNCTION_TMPL_PARTIAL_ORDER */
 
 
-// 优先队列，默认底层容器是 vector，利用 max-heap 规则，就是（x<y）  
-template <class _Tp 
-		, class _Sequence __STL_DEPENDENT_DEFAULT_TMPL( vector<_Tp> ) 
-		, class _Compare __STL_DEPENDENT_DEFAULT_TMPL( less<typename _Sequence::value_type> ) >
+// 优先队列，默认底层容器是 vector，利用 max-heap 规则 
+template <class _Tp, 
+          class _Sequence __STL_DEPENDENT_DEFAULT_TMPL(vector<_Tp>),
+          class _Compare __STL_DEPENDENT_DEFAULT_TMPL(less<typename _Sequence::value_type>) >
 class priority_queue {
 
   // requirements:
 
   __STL_CLASS_REQUIRES(_Tp, _Assignable);
-  
   __STL_CLASS_REQUIRES(_Sequence, _Sequence);
-  
   __STL_CLASS_REQUIRES(_Sequence, _RandomAccessContainer);
-  
   typedef typename _Sequence::value_type _Sequence_value_type;
-  
   __STL_CLASS_REQUIRES_SAME_TYPE(_Tp, _Sequence_value_type);
-  
   __STL_CLASS_BINARY_FUNCTION_CHECK(_Compare, bool, _Tp, _Tp);
 
 public:
@@ -187,101 +182,69 @@ public:
   typedef typename _Sequence::const_reference const_reference;
 protected:
   _Sequence c;  // 底层容器
-  
   _Compare comp; // 元素大小比较标准
-  
 public:
-	priority_queue() : c() 
-	{
-
-	}
-
-	explicit priority_queue(const _Compare& __x) :  c(), comp(__x) 
-	{
-
-	}
-
-	// 构造函数实现，将底层容器具有 heap 特性
-	priority_queue(const _Compare& __x, const _Sequence& __s) : c(__s), comp(__x) 
-	{ 
-		make_heap(c.begin(), c.end(), comp); 
-	}
-	
+  priority_queue() : c() {}
+  explicit priority_queue(const _Compare& __x) :  c(), comp(__x) {}
+  priority_queue(const _Compare& __x, const _Sequence& __s) 
+    : c(__s), comp(__x) 
+    { make_heap(c.begin(), c.end(), comp); } // 构造函数实现，将底层容器具有 heap 特性
 // priority_queue 有几种构造函数形式
 #ifdef __STL_MEMBER_TEMPLATES
-	template <class _InputIterator>
-	priority_queue(_InputIterator __first, _InputIterator __last)     : c(__first, __last) 
-	{ 
-		make_heap(c.begin(), c.end(), comp); 
-	}
+  template <class _InputIterator>
+  priority_queue(_InputIterator __first, _InputIterator __last) 
+    : c(__first, __last) { make_heap(c.begin(), c.end(), comp); }
 
-	template <class _InputIterator>
-	priority_queue(_InputIterator __first ,     _InputIterator __last , const _Compare& __x) : c(__first, __last), comp(__x) 
-	{ 
-		make_heap(c.begin(), c.end(), comp); 
-	}
+  template <class _InputIterator>
+  priority_queue(_InputIterator __first, 
+                 _InputIterator __last, const _Compare& __x)
+    : c(__first, __last), comp(__x) 
+    { make_heap(c.begin(), c.end(), comp); }
 
-	template <class _InputIterator>
-	priority_queue(_InputIterator __first, _InputIterator __last ,     const _Compare& __x, const _Sequence& __s) : c(__s), comp(__x)
-	{ 
-		c.insert(c.end(), __first, __last);
-		make_heap(c.begin(), c.end(), comp);
-	}
+  template <class _InputIterator>
+  priority_queue(_InputIterator __first, _InputIterator __last,
+                 const _Compare& __x, const _Sequence& __s)
+  : c(__s), comp(__x)
+  { 
+    c.insert(c.end(), __first, __last);
+    make_heap(c.begin(), c.end(), comp);
+  }
 
 #else /* __STL_MEMBER_TEMPLATES */
-	priority_queue(const value_type* __first , const value_type* __last) : c(__first, __last) 
-	{ 
-		make_heap(c.begin(), c.end(), comp); 
-	}
+  priority_queue(const value_type* __first, const value_type* __last) 
+    : c(__first, __last) { make_heap(c.begin(), c.end(), comp); }
 
-	priority_queue(const value_type* __first , const value_type* __last , const _Compare& __x ) : c(__first, __last), comp(__x)
-	{ 
-		make_heap(c.begin(), c.end(), comp); 
-	}
+  priority_queue(const value_type* __first, const value_type* __last, 
+                 const _Compare& __x) 
+    : c(__first, __last), comp(__x)
+    { make_heap(c.begin(), c.end(), comp); }
 
-	priority_queue(const value_type* __first , const value_type* __last , const _Compare& __x , const _Sequence& __c ) : c(__c), comp(__x) 
-	{ 
-		c.insert(c.end(), __first, __last);
-		make_heap(c.begin(), c.end(), comp);
-	}
-	
+  priority_queue(const value_type* __first, const value_type* __last, 
+                 const _Compare& __x, const _Sequence& __c)
+    : c(__c), comp(__x) 
+  { 
+    c.insert(c.end(), __first, __last);
+    make_heap(c.begin(), c.end(), comp);
+  }
 #endif /* __STL_MEMBER_TEMPLATES */
 
-	bool empty() const 
-	{ 
-		return c.empty();
-	}
-	
-	size_type size() const 
-	{
-		return c.size(); 
-	}
-
-	// 获得头部元素
-	const_reference top() const 
-	{
-		return c.front(); 
-	}
-
-	void push(const value_type& __x)
-	{
-		__STL_TRY 
-		{
-			c.push_back( __x );  // 先向底层容器尾部插入元素
-			push_heap( c.begin() , c.end() , comp ); // 重排 heap
-		}
-		__STL_UNWIND(c.clear());
-	}
-	
-	void pop() 
-	{
-		__STL_TRY 
-		{
-			pop_heap(c.begin(), c.end(), comp); // 先调用 pop_heap，将最大值放到底层容器的尾部
-			c.pop_back(); // 然后从底层容器弹出
-		}
-		__STL_UNWIND( c.clear() ); 
-	}
+  bool empty() const { return c.empty(); }
+  size_type size() const { return c.size(); }
+  const_reference top() const { return c.front(); } // 获得头部元素
+  void push(const value_type& __x) {
+    __STL_TRY {
+      c.push_back(__x);  // 先向底层容器尾部插入元素
+      push_heap(c.begin(), c.end(), comp); // 重排 heap
+    }
+    __STL_UNWIND(c.clear());
+  }
+  void pop() {
+    __STL_TRY {
+      pop_heap(c.begin(), c.end(), comp); // 先调用 pop_heap，将最大值放到底层容器的尾部
+      c.pop_back(); // 然后从底层容器弹出
+    }
+    __STL_UNWIND(c.clear()); 
+  }
 };
 
 // no equality is provided

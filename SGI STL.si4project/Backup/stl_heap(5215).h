@@ -43,18 +43,16 @@ __STL_BEGIN_NAMESPACE
 *@data 2023/08/02
 *@author wq
 *@param1: __first
-*@param2: __holeIndex 洞索引
+*@param2: __holeIndex 尾部的位置
 *@param3: __topIndex 顶部索引 (默认 为 0)
 *@param4: __value
 *@步骤:
-* 	1.找到插入节点的父节点（ 算法小技巧：洞索引为0，是不存在父节点；将#0位置保留，那么array从1算起，其左节点必然位于2i,右节点必然位于2i+1处）
-*	2.尚未达到顶端，当插入值>父节点值时，不断执行shift up操作并记录“洞索引”；
-*	3.当前值插入到指定的“洞索引”中
+* 	见注释
 */
 template <class _RandomAccessIterator , class _Distance , class _Tp>
 void __push_heap( _RandomAccessIterator __first , _Distance __holeIndex , _Distance __topIndex , _Tp __value )
 {
-	_Distance __parent = ( __holeIndex - 1 ) / 2; //找到插入节点的父节点位置
+	_Distance __parent = ( __holeIndex - 1 ) / 2; //找到插入节点的父节点位置 （ 数组第0位保留，插入数据从第一位开始 ）
 
 	//尚未达到顶端 ， 当插入值大于其父节点的值
 	while ( __holeIndex > __topIndex  &&  *( __first + __parent ) < __value) 
@@ -67,11 +65,12 @@ void __push_heap( _RandomAccessIterator __first , _Distance __holeIndex , _Dista
 	} 
 
 	*(__first + __holeIndex) = __value; // 交换完后，找到插入值的真正位置，赋值
+	
 }
 
 // push_heap 操作的调整函数(函数模板)
 template <class _RandomAccessIterator, class _Distance, class _Tp>
-inline void __push_heap_aux(_RandomAccessIterator __first , _RandomAccessIterator __last , _Distance* , _Tp* )
+inline void __push_heap_aux(_RandomAccessIterator __first ,         _RandomAccessIterator __last, _Distance*, _Tp*)
 {
   	// 第四个参数就是要插入的值，位于 vector 尾部
 	__push_heap( __first ,  _Distance( ( __last - __first ) - 1 ) ,  _Distance(0) , _Tp( *(__last - 1) ) );  
@@ -81,31 +80,33 @@ inline void __push_heap_aux(_RandomAccessIterator __first , _RandomAccessIterato
 template <class _RandomAccessIterator>
 inline void push_heap(_RandomAccessIterator __first, _RandomAccessIterator __last)
 {
-	__STL_REQUIRES( _RandomAccessIterator , _Mutable_RandomAccessIterator );
 
-	__STL_REQUIRES( typename iterator_traits<_RandomAccessIterator>::value_type , _LessThanComparable );
-
-	// 此函数被调用时，新元素应置于底部容器的最尾端
-	__push_heap_aux( __first , __last , __DISTANCE_TYPE(__first) , __VALUE_TYPE(__first) );
+  __STL_REQUIRES( _RandomAccessIterator , _Mutable_RandomAccessIterator );
+  
+  __STL_REQUIRES( typename iterator_traits<_RandomAccessIterator>::value_type , _LessThanComparable );
+  
+  // 此函数被调用时，新元素应置于底部容器的最尾端
+  __push_heap_aux( __first , __last , __DISTANCE_TYPE(__first) , __VALUE_TYPE(__first) );
+  
 }
 
 template <class _RandomAccessIterator , class _Distance , class _Tp , class _Compare>
 void __push_heap( _RandomAccessIterator __first , _Distance __holeIndex ,
 						_Distance __topIndex , _Tp __value , _Compare __comp )
 {
-	_Distance __parent = (__holeIndex - 1) / 2;
-
-	while (__holeIndex > __topIndex && __comp(*(__first + __parent), __value))
-	{
-		*(__first + __holeIndex) = *(__first + __parent);
-
-		__holeIndex = __parent;
-
-		__parent = (__holeIndex - 1) / 2;
-
-	}
-
-	*(__first + __holeIndex) = __value;
+  _Distance __parent = (__holeIndex - 1) / 2;
+  
+  while (__holeIndex > __topIndex && __comp(*(__first + __parent), __value))
+  {
+    *(__first + __holeIndex) = *(__first + __parent);
+	
+    __holeIndex = __parent;
+	
+    __parent = (__holeIndex - 1) / 2;
+	
+  }
+  
+  *(__first + __holeIndex) = __value;
 }
 
 template <class _RandomAccessIterator , class _Compare , class _Distance , class _Tp>
@@ -133,41 +134,38 @@ void __adjust_heap( _RandomAccessIterator __first , _Distance __holeIndex , _Dis
 {
 	//以下例子：以__make_heap 中 ， 以 50 , 65 , 68 , 22 , 31 , 21 为例
 	
-	//1.记录"洞索引"并记录"洞节点的右节点索引"
 	_Distance __topIndex = __holeIndex;  //__holeIndex = 0，为 heap 的根节点
+
 	_Distance __secondChild = 2 * __holeIndex + 2 ; //根节点的右节点的索引 （holeIndex 从0开始算起）
 
-
-	//2.调整“洞索引位置”为最大值，形成max-heap ; 并更新“洞索引”
+													
 	while ( __secondChild < __len )
 	{
-		if ( *( __first + __secondChild ) < *( __first + ( __secondChild - 1 ) ) ) // 比较根节点的左右节点值 ,右节点 < 左节点
+		if ( *( __first + __secondChild ) < *( __first + (__secondChild - 1) ) ) // 比较根节点的左右节点值 ,右节点 < 左节点
 			__secondChild-- ;
 
 		*( __first + __holeIndex ) = *( __first + __secondChild );  // while 里做 shift down 操作 （左右节点谁大，谁赋值给根节点）
 
-		__holeIndex = __secondChild; // 更新洞索引位置，走左子树或右子树；
+		__holeIndex = __secondChild; //( 更新根节点位置 )
 		
 		__secondChild = 2 * ( __secondChild + 1 ); //新根节点的右节点索引
 
-	}	
-	//__make_heap第一步结束（50 , 31 , 68 , 22 ,  , 21）
-	//__make_heap第二步结束（68 , 65 ,        , 22 , 31 , 21 ）
-
+	}	//第一步结束（50 , 31 , 68 , 22 ,  , 21）
+		//第二步结束（68 , 65 ,        , 22 , 31 , 21 ）
 
 	// 没有右子节点，只有左子节点
-	if ( __secondChild == __len ) 
+	if (__secondChild == __len) 
 	{ 
-		*( __first + __holeIndex ) = *( __first + ( __secondChild - 1 ) );
+		*(__first + __holeIndex) = *(__first + (__secondChild - 1));
 		
-		__holeIndex = __secondChild - 1 ;
+		__holeIndex = __secondChild - 1;
+
 	}
 
+	// 第一步：__holdIndex = 4 , __topIndex = 1 , __value = 65 ， 经过push_heap() 之后 顺序：50 , 65 , 68 , 22 , 31 , 21 
+	// 第二步：__holdIndex = 2 , __topIndex = 0 , __value = 50 ， 经过push_heap之后，顺序：68 ， 65 ， 50 ， 22 ， 31 ， 21 
   	// 找到真正的位置，插入     			
-	__push_heap( __first , __holeIndex , __topIndex , __value );
-	
-	// __make_heap第一步：__holdIndex = 4 , __topIndex = 1 , __value = 65 ， 经过push_heap() 之后 顺序：50 , 65 , 68 , 22 , 31 , 21 
-	//__make_heap第二步：__holdIndex = 2 , __topIndex = 0 , __value = 50 ， 经过push_heap之后，顺序：68 ， 65 ， 50 ， 22 ， 31 ， 21 
+	__push_heap( __first , __holeIndex , __topIndex , __value );   
   
 }
 
@@ -198,7 +196,6 @@ inline void pop_heap( _RandomAccessIterator __first , _RandomAccessIterator __la
   __STL_REQUIRES(_RandomAccessIterator, _Mutable_RandomAccessIterator);
   __STL_REQUIRES( typename iterator_traits<_RandomAccessIterator>::value_type ,  _LessThanComparable );
 
-//68 ， 50 ， 65 ， 21 ， 31 ， 32 ， 26 ， 19 ， 16 ， 13 ，24 
  // pop_heap 调整函数，将 vector 头部元素放到 vector 的尾部
   __pop_heap_aux( __first , __last , __VALUE_TYPE(__first) ); 
  
@@ -214,14 +211,15 @@ void __adjust_heap(_RandomAccessIterator __first , 		 _Distance __holeIndex ,
   
   while (__secondChild < __len) 
   {
-    if ( __comp( *(__first + __secondChild) ,  *(__first + (__secondChild - 1) ) ) ) //左右子节点比较
+    if ( __comp( *(__first + __secondChild) ,  *(__first + (__secondChild - 1) ) ) )
       __secondChild--;
 	
-    *(__first + __holeIndex) = *(__first + __secondChild); //根据comp比较规则，谁大或谁小，和父节点交换位置；
+    *(__first + __holeIndex) = *(__first + __secondChild);
 	
-    __holeIndex = __secondChild; //更新“洞索引”，走左子树或右子树； 
+    __holeIndex = __secondChild;
 	
     __secondChild = 2 * (__secondChild + 1);
+	
   }
   
   if (__secondChild == __len) 
